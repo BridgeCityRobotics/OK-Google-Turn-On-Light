@@ -22,8 +22,8 @@
 #include <EEPROM.h>
 
 // Variables 
-int ledPin = 13;                // choose the pin for the LED
-int pirInputPin = 2;            // choose the input pin (for PIR sensor)
+int ledPin = 2;                // choose the pin for the LED
+int pirInputPin = 8;            // choose the input pin (for PIR sensor)
 int pirState = LOW;             // we start, assuming no motion detected
 int pirInputVal = 0;            // variable for reading the pin status
 #define nodeID 1                // NRF24L01 Node Identification.  Must be a unique value from 1-255
@@ -35,7 +35,7 @@ struct payload_t {              //
 
 
 // Configure the NRF24L01 CE and CS pins
-RF24 radio(7, 8);               // Arduino SPI pins for CE and CS
+RF24 radio(9, 10);               // Arduino SPI pins for CE and CS
 RF24Network network(radio);
 RF24Mesh mesh(radio, network);
  
@@ -83,9 +83,9 @@ void loop(){
   if (millis() - displayTimer >= 1000) {
     displayTimer = millis();
 
-    // Send an 'P' type message containing the current millis()
-    // 'P' is a user-defined (1-127) message header_type to send. Used to distinguish between different types of data being transmitted
-    if (!mesh.write(pirState, 'P', sizeof(pirState))) {
+    // Send an 'M' type message containing the current millis()
+    // 'M' is a user-defined (1-127) message header_type to send. Used to distinguish between different types of data being transmitted
+    if (!mesh.write(&pirState, 'M', sizeof(pirState))) {
 
       // If a write fails, check connectivity to the mesh network
       if ( ! mesh.checkConnection() ) {
@@ -96,7 +96,7 @@ void loop(){
         Serial.println("Send fail, Test OK");
       }
     } else {
-      Serial.print("Send OK: "); Serial.println(displayTimer);
+      Serial.print("Send OK: "); Serial.println(pirState);
     }
   }
 
